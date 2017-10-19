@@ -5,10 +5,12 @@
  */
 package javaapplication18;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -17,6 +19,10 @@ import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.id.IndonesianAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -34,14 +40,15 @@ public class JavaApplication18 {
 	/**
 	 * @param args the command line arguments
 	 */
+	
 	public static void main(String[] args) {
 		String pdfPath= "D:\\Kuliah\\rancangan document indexing\\dir-pdf\\";
-		//String pdfPath= "D:\\Kuliah\\sem 7\\sosioteknologi informatika\\week 9 presentasiku\\pendukung makalah uts\\";
-    	String indexPath= "D:\\Kuliah\\rancangan document indexing\\dir-index\\";
+		String indexPath= "D:\\Kuliah\\rancangan document indexing\\dir-index\\";
 		final Path indexDir = Paths.get(indexPath);
         boolean create = true;
 		final File docDir = new File(pdfPath);
-        if (!docDir.exists() || !docDir.canRead())
+        
+		if (!docDir.exists() || !docDir.canRead())
         {
             System.out.println("direktori pdf '" + docDir.getAbsolutePath()+ "' tidak ada atau tidak bisa dibaca");
             System.exit(1);
@@ -53,7 +60,6 @@ public class JavaApplication18 {
 				System.out.println("Indexing ke folder: '" + indexPath + "'...");
 				Directory dir ;
 				dir = FSDirectory.open(indexDir);
-				// Directory dir = FSDirectory.open(indexDir);
 				
 				Analyzer analyzer = new StandardAnalyzer();
 				IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
@@ -109,20 +115,29 @@ public class JavaApplication18 {
                 {
                     String path = file.getName().toUpperCase();
                     Document doc = null;
-                    if (path.toLowerCase().endsWith(".pdf"))
+                    
+					if (path.toLowerCase().endsWith(".pdf"))
                     {
                         System.out.println("Indexing PDF document: " + file);
                         doc = LucenePDFDocument.getDocument(file);
+						//doc.add(new TextField("contents", new String(Files.readAllBytes(Paths.get(pdfPath))), Store.YES));
+//						System.out.println("field list: \n" + doc.getFields());
+//						System.exit(0);
                     }
                     else
                     {
                         System.out.println("Skipping " + file);
                         return;
                     }
-                    if (writer.getConfig().getOpenMode() == OpenMode.CREATE)
+                    
+					if (writer.getConfig().getOpenMode() == OpenMode.CREATE)
                     {
                         System.out.println("adding " + file);
+						
                         writer.addDocument(doc);
+//						System.out.println("summary: " + doc.getField("summary")+"\n");
+//						System.out.println("producer: " + doc.getField("Producer")+"\n");
+//						System.out.println("contents: " + doc.getField("contents")+"\n");
                     }
                     else
                     {
