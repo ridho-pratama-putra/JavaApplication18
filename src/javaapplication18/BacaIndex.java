@@ -8,7 +8,9 @@ package javaapplication18;
 import java.nio.file.Paths;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.id.IndonesianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -46,16 +48,16 @@ public class BacaIndex {
 			IndexSearcher searcher = new IndexSearcher(reader);
 			
 			//analyzer with the default stop words
-			Analyzer analyzer = new StandardAnalyzer();
+			Analyzer analyzer = new IndonesianAnalyzer();
 			
 			QueryParser qp;
 			qp = new QueryParser("contents",analyzer);
 			
-			Query query = qp.parse("menggunakan");
+			Query query = qp.parse("guna");
 			
 			
 			//Search the lucene documents
-			TopDocs hits = searcher.search(query, 10);
+			TopDocs hits = searcher.search(query, 100);
 			
 			
 			//Uses HTML &lt;B&gt;&lt;/B&gt; tag to highlight the searched terms
@@ -69,7 +71,7 @@ public class BacaIndex {
 			Highlighter highlighter = new Highlighter(formatter, scorer);
 			
 			//It breaks text up into same-size texts but does not split up spans
-			Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 10);
+			Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 100);
 			
 			//breaks text up into same-size fragments with no concerns over spotting sentence boundaries.
 			//Fragmenter fragmenter = new SimpleFragmenter(10);
@@ -79,14 +81,15 @@ public class BacaIndex {
 			
 			//Iterate over found results
 			//for (int i = 0; i < hits.scoreDocs.length; i++)
-//			if(hits.scoreDocs.length > 0 )
-//			{
+			if(hits.scoreDocs.length > 0 )
+			{
+				System.out.println("Found : "+hits.totalHits);
 				for (ScoreDoc scoreDoc : hits.scoreDocs) {
 					int docid = scoreDoc.doc;
 					Document doc = searcher.doc(docid);
-					String title = doc.get("path");
+					String path = doc.get("path");
 					//Printing - to which document result belongs
-					System.out.println("Path " + " : " + title);
+					System.out.println("\nPath : " + path +" dengan score : "+scoreDoc.score);
 					//Get stored text from found document
 					String text = doc.get("contents");
 //					String text = doc.getField("contents");
@@ -95,18 +98,20 @@ public class BacaIndex {
 
 					//Create token stream
 					TokenStream stream = TokenSources.getAnyTokenStream(reader, docid, "contents", analyzer);
-					String[] frags = highlighter.getBestFragments(stream, text,100);
+					String[] frags = highlighter.getBestFragments(stream, text,10);
+					int nomor = 1;
 					for (String frag : frags)
 					{
-						System.out.println("=======================");
+						System.out.println("============"+nomor+"===========");
 						System.out.println(frag);
+						nomor++;
 					}
 				}
-//			}
-//			else
-//			{
-//				System.out.println("coba kata kunci lain");
-//			}
+			}
+			else
+			{
+				System.out.println("coba kata kunci lain");
+			}
 		}
     }
 }

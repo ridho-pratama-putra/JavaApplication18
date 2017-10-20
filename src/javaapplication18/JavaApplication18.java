@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.id.IndonesianAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -45,9 +46,10 @@ public class JavaApplication18 {
 		String pdfPath= "D:\\Kuliah\\rancangan document indexing\\dir-pdf\\";
 		String indexPath= "D:\\Kuliah\\rancangan document indexing\\dir-index\\";
 		final Path indexDir = Paths.get(indexPath);
-        boolean create = true;
+		// boolean create	true	->untuk buat baru
+		//					false	->untuk update index yg sudah ada
+        boolean create = false;
 		final File docDir = new File(pdfPath);
-        
 		if (!docDir.exists() || !docDir.canRead())
         {
             System.out.println("direktori pdf '" + docDir.getAbsolutePath()+ "' tidak ada atau tidak bisa dibaca");
@@ -60,9 +62,24 @@ public class JavaApplication18 {
 				System.out.println("Indexing ke folder: '" + indexPath + "'...");
 				Directory dir ;
 				dir = FSDirectory.open(indexDir);
-				
-				Analyzer analyzer = new StandardAnalyzer();
+				Analyzer analyzer = new IndonesianAnalyzer();
+/*
+
+WhitespaceAnalyzer
+This analyzer splits the text in a document based on whitespace.
+
+SimpleAnalyzer
+This analyzer splits the text in a document based on non-letter characters and puts the text in lowercase.
+
+StopAnalyzer
+This analyzer works just as the SimpleAnalyzer and removes the common words like 'a', 'an', 'the', etc.
+
+StandardAnalyzer
+This is the most sophisticated analyzer and is capable of handling names, email addresses, etc. It lowercases each token and removes common words and punctuations, if any.
+
+*/
 				IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+				
 				if (create)
 				{
 					iwc.setOpenMode(OpenMode.CREATE);
@@ -76,7 +93,7 @@ public class JavaApplication18 {
 					indexDocs(writer, docDir);
 				}
 				Date end = new Date();
-				System.out.println(end.getTime() - start.getTime() + " total milliseconds");
+				System.out.println("\n" + (end.getTime() - start.getTime()) + " total milliseconds");
 			}
 			catch (IOException e)
 			{
@@ -120,9 +137,8 @@ public class JavaApplication18 {
                     {
                         System.out.println("Indexing PDF document: " + file);
                         doc = LucenePDFDocument.getDocument(file);
-						//doc.add(new TextField("contents", new String(Files.readAllBytes(Paths.get(pdfPath))), Store.YES));
-//						System.out.println("field list: \n" + doc.getFields());
-//						System.exit(0);
+						// System.out.println("field list: \n" + doc.getFields());
+						// System.exit(0);
                     }
                     else
                     {
@@ -135,9 +151,9 @@ public class JavaApplication18 {
                         System.out.println("adding " + file);
 						
                         writer.addDocument(doc);
-//						System.out.println("summary: " + doc.getField("summary")+"\n");
-//						System.out.println("producer: " + doc.getField("Producer")+"\n");
-//						System.out.println("contents: " + doc.getField("contents")+"\n");
+						// System.out.println("summary: " + doc.getField("summary")+"\n");
+						// System.out.println("producer: " + doc.getField("Producer")+"\n");
+						// System.out.println("contents: " + doc.getField("contents")+"\n");
                     }
                     else
                     {
