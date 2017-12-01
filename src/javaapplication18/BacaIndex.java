@@ -47,13 +47,13 @@ public class BacaIndex {
 			//Create lucene searcher. It search over a single IndexReader.
 			IndexSearcher searcher = new IndexSearcher(reader);
 			
-			//analyzer with the default stop words
 			Analyzer analyzer = new IndonesianAnalyzer();
 			
 			QueryParser qp;
 			qp = new QueryParser("contents",analyzer);
 			
-			Query query = qp.parse("guna");
+			//here the keyword you want to search
+			Query query = qp.parse("menggunakan metode");
 			
 			
 			//Search the lucene documents
@@ -83,14 +83,16 @@ public class BacaIndex {
 			//for (int i = 0; i < hits.scoreDocs.length; i++)
 			if(hits.scoreDocs.length > 0 )
 			{
-				System.out.println("Found : "+hits.totalHits);
+				System.out.println("Ditemukan : "+hits.totalHits);
 				for (ScoreDoc scoreDoc : hits.scoreDocs) {
 					int docid = scoreDoc.doc;
 					Document doc = searcher.doc(docid);
 					String path = doc.get("path");
 					//Printing - to which document result belongs
+					System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
 					System.out.println("\nPath : " + path +" dengan score : "+scoreDoc.score);
 					//Get stored text from found document
+					//modified LUCENEPDFDocument
 					String text = doc.get("contents");
 //					String text = doc.getField("contents");
 					//System.out.println(doc.getFields("contents"));
@@ -102,7 +104,7 @@ public class BacaIndex {
 					int nomor = 1;
 					for (String frag : frags)
 					{
-						System.out.println("============"+nomor+"===========");
+						System.out.println("No."+nomor+" :");
 						System.out.println(frag);
 						nomor++;
 					}

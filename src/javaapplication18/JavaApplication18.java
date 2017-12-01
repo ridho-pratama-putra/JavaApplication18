@@ -48,7 +48,7 @@ public class JavaApplication18 {
 		final Path indexDir = Paths.get(indexPath);
 		// boolean create	true	->untuk buat baru
 		//					false	->untuk update index yg sudah ada
-        boolean create = false;
+        boolean create = true;
 		final File docDir = new File(pdfPath);
 		if (!docDir.exists() || !docDir.canRead())
         {
